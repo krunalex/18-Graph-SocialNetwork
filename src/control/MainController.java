@@ -39,6 +39,10 @@ public class MainController {
      */
     public boolean insertUser(String name){
         //TODO 05: Nutzer dem sozialen Netzwerk hinzufügen.
+        if(allUsers.getVertex(name) == null){
+            allUsers.addVertex(new Vertex(name));
+            return true;
+        }
         return false;
     }
 
@@ -49,6 +53,10 @@ public class MainController {
      */
     public boolean deleteUser(String name){
         //TODO 07: Nutzer aus dem sozialen Netzwerk entfernen.
+        if(allUsers.getVertex(name) != null){
+            allUsers.removeVertex(allUsers.getVertex(name));
+            return true;
+        }
         return false;
     }
 
@@ -58,6 +66,20 @@ public class MainController {
      */
     public String[] getAllUsers(){
         //TODO 06: String-Array mit allen Nutzernamen erstellen.
+        if(!allUsers.isEmpty()){
+            int counter = 0;
+            while(allUsers.getVertices().hasAccess()){
+                counter++;
+                allUsers.getVertices().next();
+            }
+            String[] userArray = new String[counter];
+            allUsers.getVertices().toFirst();
+            for (int i = 0; i < counter; i++) {
+                userArray[i] = allUsers.getVertices().getContent().getID();
+                allUsers.getVertices().next();
+            }
+            return userArray;
+        }
         return null;
     }
 
@@ -68,6 +90,20 @@ public class MainController {
      */
     public String[] getAllFriendsFromUser(String name){
         //TODO 09: Freundesliste eines Nutzers als String-Array erstellen.
+        if(allUsers.getVertex(name) != null){
+            int counter = 0;
+            List<Vertex> dummyList = new List<>();
+            while(allUsers.getNeighbours(allUsers.getVertex(name)).hasAccess()){
+                counter++;
+                allUsers.getNeighbours(allUsers.getVertex(name)).next();
+            }
+            String[] userFriends = new String[counter];
+            for (int i = 0; i < counter; i++) {
+                userFriends[i] = allUsers.getNeighbours(allUsers.getVertex(name)).getContent().getID();
+                allUsers.getVertices().next();
+            }
+            return userFriends;
+        }
         return null;
     }
 
@@ -80,7 +116,22 @@ public class MainController {
      */
     public double centralityDegreeOfUser(String name){
         //TODO 10: Prozentsatz der vorhandenen Freundschaften eines Nutzers von allen möglichen Freundschaften des Nutzers.
-        return 0.125456;
+        if(allUsers.getVertex(name) != null){
+            double allUserCounter = 0;
+            double allFriendsCounter = 0;
+            allUsers.getVertices().toFirst();
+            while(allUsers.getVertices().hasAccess()){
+                allUserCounter++;
+                allUsers.getVertices().next();
+            }
+            allUsers.getNeighbours(allUsers.getVertex(name)).toFirst();
+            while(allUsers.getNeighbours(allUsers.getVertex(name)).hasAccess()){
+                allFriendsCounter++;
+                allUsers.getNeighbours(allUsers.getVertex(name)).next();
+            }
+            return allFriendsCounter/allUserCounter;
+        }
+        return -1;
     }
 
     /**
@@ -91,6 +142,15 @@ public class MainController {
      */
     public boolean befriend(String name01, String name02){
         //TODO 08: Freundschaften schließen.
+        Vertex vertex1 = allUsers.getVertex(name01);
+        Vertex vertex2 = allUsers.getVertex(name02);
+        if(vertex1 != null && vertex2 != null){
+            if(allUsers.getEdge(vertex1, vertex2) == null){
+                Edge e = new Edge(vertex1, vertex2, 0);
+                allUsers.addEdge(e);
+                return true;
+            }
+        }
         return false;
     }
 
@@ -102,6 +162,15 @@ public class MainController {
      */
     public boolean unfriend(String name01, String name02){
         //TODO 11: Freundschaften beenden.
+        Vertex vertex1 = allUsers.getVertex(name01);
+        Vertex vertex2 = allUsers.getVertex(name02);
+        Edge e = allUsers.getEdge(vertex1, vertex2);
+        if(vertex1 != null && vertex2 != null){
+            if(allUsers.getEdge(vertex1, vertex2) != null){
+                allUsers.removeEdge(e);
+                return true;
+            }
+        }
         return false;
     }
 
@@ -112,7 +181,24 @@ public class MainController {
      */
     public double dense(){
         //TODO 12: Dichte berechnen.
-        return 0.12334455676;
+        if(allUsers.getEdges() != null){
+            double allVertices = 0;
+            double allFriendshipsCounter = 0;
+            double allPossibleFriendshipsCounter = 0;
+            allUsers.getEdges().toFirst();
+            while(allUsers.getEdges().hasAccess()){
+                allFriendshipsCounter++;
+                allUsers.getEdges().next();
+            }
+            allUsers.getVertices().toFirst();
+            while(allUsers.getVertices().hasAccess()){
+                allVertices++;
+                allUsers.getVertices().next();
+            }
+            allPossibleFriendshipsCounter = allVertices * allVertices-1;
+            return allFriendshipsCounter/allPossibleFriendshipsCounter;
+        }
+        return -1;
     }
 
     /**
