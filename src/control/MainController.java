@@ -213,6 +213,18 @@ public class MainController {
         Vertex user02 = allUsers.getVertex(name02);
         if(user01 != null && user02 != null){
             //TODO 13: Schreibe einen Algorithmus, der mindestens eine Verbindung von einem Nutzer über Zwischennutzer zu einem anderem Nutzer bestimmt. Happy Kopfzerbrechen!
+            List<Vertex> dummyList = new List<>();
+            allUsers.getNeighbours(user01).toFirst();
+            while(allUsers.getNeighbours(user01).hasAccess()){
+                dummyList.append(allUsers.getNeighbours(user01).getContent());
+                allUsers.getNeighbours(user01).next();
+            }
+            while(dummyList.hasAccess()){
+                if(allUsers.getNeighbours(dummyList.getContent()) != null){
+                    dummyList.getContent().setMark(true);
+                }
+                dummyList.next();
+            }
         }
         return null;
     }
