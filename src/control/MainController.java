@@ -5,6 +5,8 @@ import model.Graph;
 import model.List;
 import model.Vertex;
 
+import java.beans.VetoableChangeListener;
+
 /**
  * Created by Jean-Pierre on 12.01.2017.
  */
@@ -209,24 +211,7 @@ public class MainController {
      * @return
      */
     public String[] getLinksBetween(String name01, String name02){
-        Vertex user01 = allUsers.getVertex(name01);
-        Vertex user02 = allUsers.getVertex(name02);
-        if(user01 != null && user02 != null){
-            //TODO 13: Schreibe einen Algorithmus, der mindestens eine Verbindung von einem Nutzer über Zwischennutzer zu einem anderem Nutzer bestimmt. Happy Kopfzerbrechen!
-            List<Vertex> dummyList = new List<>();
-            allUsers.getNeighbours(user01).toFirst();
-            while(allUsers.getNeighbours(user01).hasAccess()){
-                dummyList.append(allUsers.getNeighbours(user01).getContent());
-                allUsers.getNeighbours(user01).next();
-            }
-            while(dummyList.hasAccess()){
-                if(allUsers.getNeighbours(dummyList.getContent()) != null){
-                    dummyList.getContent().setMark(true);
-                }
-                dummyList.next();
-            }
-        }
-        return null;
+        return new String[0];
     }
 
     /**
@@ -234,7 +219,18 @@ public class MainController {
      * @return true, falls ohne einsame Knoten, sonst false.
      */
     public boolean someoneIsLonely(){
-        //TODO 14: Schreibe einen Algorithmus, der explizit den von uns benutzten Aufbau der Datenstruktur Graph und ihre angebotenen Methoden so ausnutzt, dass schnell (!) iterativ geprüft werden kann, ob der Graph allUsers keine einsamen Knoten hat. Dies lässt sich mit einer einzigen Schleife prüfen.
+        //TODO 14: Schreibe einen Algorithmus, der explizit den von uns benutzten Aufbau der Datenstruktur Graph und ihre angebotenen Methoden so ausnutzt,
+        // dass schnell (!) iterativ geprüft werden kann, ob der Graph allUsers keine einsamen Knoten hat. Dies lässt sich mit einer einzigen Schleife prüfen.
+        List<Vertex> vertices = allUsers.getVertices();
+        List<Edge> edge = allUsers.getEdges(vertices.getContent());
+
+        vertices.toFirst();
+        while(vertices.hasAccess()){
+            if(edge.isEmpty()){
+               return true;
+            }
+            vertices.next();
+        }
         return false;
     }
 
@@ -244,9 +240,27 @@ public class MainController {
      * @return true, falls alle Knoten vom ersten ausgehend markiert wurden, sonst false.
      */
     public boolean testIfConnected(){
-        //TODO 15: Schreibe einen Algorithmus, der ausgehend vom ersten Knoten in der Liste aller Knoten versucht, alle anderen Knoten über Kanten zu erreichen und zu markieren.
-        return false;
+        //TODO 15: Schreibe einen Algorithmus, der ausgehend vom ersten Knoten in der Liste aller Knoten versucht,
+        // alle anderen Knoten über Kanten zu erreichen und zu markieren.
+        allUsers.setAllVertexMarks(false);
+        List<Vertex> users = allUsers.getVertices();
+        users.toFirst();
+        testIfConnected(users.getContent());
+        return allUsers.allVerticesMarked();
     }
+
+    private void testIfConnected(Vertex v){
+        v.setMark(true);
+        List<Vertex> list = allUsers.getNeighbours(v);
+        list.toFirst();
+        while(list.hasAccess()){
+            if(!list.getContent().isMarked()){
+                testIfConnected(v);
+            }
+            list.next();
+        }
+    }
+
     
     /**
      * Gibt einen String-Array zu allen Knoten zurück, die von einem Knoten ausgehend erreichbar sind, falls die Person vorhanden ist.
